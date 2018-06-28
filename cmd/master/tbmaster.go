@@ -48,9 +48,13 @@ func checkHost(ip string) bool {
 }
 
 func main() {
+
 	m := http.NewServeMux()
 	m.Handle("/", websocket.Handler(newConn))
 	go http.ListenAndServe("0.0.0.0:4000", m)
+
+	d, _ := os.Getwd()
+	log.Println(os.StartProcess(d+"/tbnode", nil, &os.ProcAttr{}))
 
 	{
 		w := http.NewServeMux()
@@ -87,6 +91,9 @@ type client struct {
 func newConn(ws *websocket.Conn) {
 	ra := ws.Request().RemoteAddr
 	ip, _, _ := net.SplitHostPort(ra)
+	if ip == "::1" {
+		ip = "127.0.0.1"
+	}
 	if ip == "127.0.0.1" {
 		ip = GetLocalIP()
 		log.Println("LOCAL IP DETECTED AS", ip)
