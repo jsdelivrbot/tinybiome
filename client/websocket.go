@@ -96,21 +96,22 @@ func (s *Server) String() string {
 }
 
 func (s *Server) CommunicateWithMaster() {
-	d, e := websocket.Dial("ws://localhost:4000", "", "http://server.go")
-	if e != nil {
-		d, e = websocket.Dial("ws://www.tinybio.me:4000", "", "http://server.go")
-		log.Println("LOCAL SERVER DOWN", e)
-		if e != nil {
-			log.Panicln("MASTER SERVER DOWN", e)
-		}
-	}
-	writer := json.NewEncoder(d)
-
-	writer.Encode(map[string]interface{}{"meth": "addme", "port": s.Config.Port})
 	for {
-		time.Sleep(time.Second)
-		if e := writer.Encode(map[string]interface{}{"meth": "ping"}); e != nil {
-			break
+		d, e := websocket.Dial("ws://master:4000", "", "http://server.go")
+		if e != nil {
+			fmt.Println("SLEEPING...")
+			time.Sleep(1 * time.Second)
+			fmt.Println("RETRY")
+			continue
+		}
+		writer := json.NewEncoder(d)
+
+		writer.Encode(map[string]interface{}{"meth": "addme", "port": s.Config.Port})
+		for {
+			time.Sleep(time.Second)
+			if e := writer.Encode(map[string]interface{}{"meth": "ping"}); e != nil {
+				break
+			}
 		}
 	}
 }

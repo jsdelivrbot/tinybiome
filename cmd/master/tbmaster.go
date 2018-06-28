@@ -7,8 +7,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"os"
-	"os/exec"
 	"sync"
 )
 
@@ -33,17 +31,6 @@ func checkHost(ip string) bool {
 			return true
 		}
 	}
-	c := exec.Command("ssh-keygen", "-H", "-F", ip)
-	c.Stderr = os.Stderr
-	c.Stdout = os.Stdout
-	if e := c.Start(); e != nil {
-		log.Panicln("FAILED TO FIND SSH-KEYGEN", e)
-	}
-	if e := c.Wait(); e != nil {
-		log.Println("HACK ATTEMPT?", e, ip)
-		return false
-	}
-	log.Println(n, "ALLOWED BECAUSE IN SSH ALLOWED HOSTS")
 	return true
 }
 
@@ -53,24 +40,13 @@ func main() {
 	m.Handle("/", websocket.Handler(newConn))
 	go http.ListenAndServe("0.0.0.0:4000", m)
 
-	d, _ := os.Getwd()
-	log.Println(os.StartProcess(d+"/tbnode", nil, &os.ProcAttr{}))
-
 	{
 		w := http.NewServeMux()
 		fs := http.FileServer(http.Dir("./ui"))
 		w.Handle("/", fs)
 
 		log.Println("ABOUT TO LISTEN FOR HTTP")
-		go http.ListenAndServe("0.0.0.0:8080", w)
-	}
-	{
-		w := http.NewServeMux()
-		fs := http.FileServer(http.Dir("./ui"))
-		w.Handle("/", fs)
-
-		log.Println("ABOUT TO LISTEN FOR HTTP")
-		http.ListenAndServe("0.0.0.0:80", w)
+		http.ListenAndServe("0.0.0.0:8000", w)
 	}
 }
 
