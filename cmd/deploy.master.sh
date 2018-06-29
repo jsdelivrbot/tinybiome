@@ -10,6 +10,6 @@ echo "adding service"
 cp cmd/tbserver.service /etc/systemd/system/
 echo "restarting tbserver service"
 systemctl enable tbserver.service
-service restart tbserver.service
+systemctl restart tbserver.service
 echo "reloading nginx"
 service nginx reload
