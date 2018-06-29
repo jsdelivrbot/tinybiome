@@ -1,5 +1,7 @@
 #!/bin/bash
-echo "fetching depedencies..."
+echo "fetching depedencies in..."
+pwd
+
 go env
 go get ./...
 echo "building binary..."
