@@ -12,6 +12,6 @@ echo "restarting tbserver service"
 systemctl enable tbserver.service
 systemctl restart tbserver.service
 echo "copying nginx"
-cp cmd/nginx.conf /etc/nginx/sites-enabled/tinybio.me.conf
+cp cmd/nginx.conf /etc/nginx/sites-enabled/backend
 echo "reloading nginx"
 service nginx reload
