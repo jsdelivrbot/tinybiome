@@ -19,6 +19,8 @@ import (
 var defaultConf = []byte(`{
 		"name":"Unnamed Server",
 		"port":3000,
+		"certfile": "/etc/letsencrypt/live/tinybio.me/fullchain.pem",
+		"keyfile": "/etc/letsencrypt/live/tinybio.me/privkey.pem",
 		"origins": [
 			"http://www.tinybio.me",
 			"http://localhost"],
@@ -42,10 +44,12 @@ var master = flag.String("master", "tinybio.me:4000", "host and port of master")
 var ConfigInvalidJson = errors.New("Config file not valid JSON")
 
 type ServerConfig struct {
-	Name    string        `json:"name"`
-	Port    int           `json:"port"`
-	Rooms   []*RoomConfig `json:"rooms"`
-	Origins []string      `json:"origins"`
+	Name     string `json:"name"`
+	Port     int    `json:"port"`
+	CertFile string
+	KeyFile  string
+	Rooms    []*RoomConfig `json:"rooms"`
+	Origins  []string      `json:"origins"`
 }
 
 func NewServerConfigDefault() *ServerConfig {
@@ -126,7 +130,7 @@ func (s *Server) Start() error {
 	log.Println("STARTING ON", add)
 
 	go s.CommunicateWithMaster()
-	if err := http.ListenAndServe(add, nil); err != nil {
+	if err := http.ListenAndServeTLS(add, s.Config.CertFile, s.Config.KeyFile, nil); err != nil {
 		log.Println("ERROR", err)
 	}
 	return nil

@@ -24,7 +24,11 @@ func ListenForNodes() {
 	log.Println("serving nodes")
 	m := http.NewServeMux()
 	m.Handle("/", websocket.Handler(newConn))
-	if err := http.ListenAndServe("0.0.0.0:4000", m); err != nil {
+
+	certFile = "/etc/letsencrypt/live/tinybio.me/fullchain.pem"
+	keyFile = "/etc/letsencrypt/live/tinybio.me/privkey.pem"
+
+	if err := http.ListenAndServeTLS("0.0.0.0:4000", certFile, keyFile, m); err != nil {
 		log.Println("err serving nodes:", err.Error())
 	}
 }
