@@ -1,5 +1,6 @@
 #!/bin/bash
 echo "building..."
 cd $GIT_WORK_TREE
-go build cmd/tinybiome.go -o tb
+pwd
+go build -o tb cmd/tinybiome.go
 service nginx reload
