@@ -27,7 +27,7 @@ var ws;
 function server(location) {
 	var self = this;
 	this.roomCount = 0
-	this.ws = new WebSocket("ws://"+location)
+	this.ws = new WebSocket(location)
 	this.rooms = {};
 	this.ws.onopen = function() {
 	}
@@ -577,7 +577,11 @@ function ohno(x) {
 var popup;
 window.onload = function() {
 	gfx.start()
-	servers = new server(document.location.hostname+":4000")
+	if (document.location.protocol.startsWith("https")) {
+		servers = new server("wss://"+document.location.hostname+":4000")
+	} else {
+		servers = new server("ws://"+document.location.hostname+":4000")
+	}
 	setQuality(maxQuality-1)
 	renderBackground = gfx.createRenderBackground(ctx)
 	leaderBoardRenderer = gfx.createLeaderBoard({stage:ctx.top})
