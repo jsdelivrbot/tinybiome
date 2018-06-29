@@ -6,7 +6,6 @@ go env
 go get ./...
 echo "building binary..."
 go build -o /root/tb cmd/tinybiome.go
-cp -r ui /root/ui
 echo "adding service"
 cp cmd/tbserver.service /etc/systemd/system/
 echo "restarting tbserver service"
