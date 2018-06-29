@@ -11,5 +11,7 @@ cp cmd/tbserver.service /etc/systemd/system/
 echo "restarting tbserver service"
 systemctl enable tbserver.service
 systemctl restart tbserver.service
+echo "copying server conf"
+cp cmd/http.conf /etc/nginx/sites-enabled/tbbackend
 echo "reloading nginx"
 service nginx reload
