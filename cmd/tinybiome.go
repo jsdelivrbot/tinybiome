@@ -9,11 +9,13 @@ import (
 )
 
 func main() {
+	defer log.Println("exiting")
 	flag.Parse()
 
 	var all sync.WaitGroup
 	for _, v := range flag.Args() {
 		parts := strings.Split(v, ",")
+		log.Println("running service", v)
 		all.Add(1)
 		switch parts[0] {
 		case "node":
