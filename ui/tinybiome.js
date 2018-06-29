@@ -646,7 +646,7 @@ document.onkeydown = function(e) {
     	canSpit = false
     	currentRoom.server.writeSpit()
     }
-    if (e.keyCode == '144') {
+    if (e.keyCode == '192') {
     	debugMode = true
     }
     if (e.keyCode == '27') {
@@ -734,9 +734,9 @@ function setQuality(q) {
 // var renderArea = gfx.createRenderArea(ctx)
 var renderBackground
 var leaderBoardRenderer
+var skipped = 0
 function render() {
 	window.requestAnimationFrame(render)
-	newFps += 1
 	var now = (new Date())
 	if (now-lastFps>1000) {
 		lastFps = now
@@ -775,11 +775,16 @@ function render() {
 		renderCycles = 100
 	}
 
-	if (renderQuality<2) {
-		if ((renderCycles%2)==1) {
-			return
-		}
+	// if (renderQuality<2) {
+	if (skipped<1) {
+		// console.log("skipping frame")
+		skipped += 1
+		return;
 	}
+	skipped = 0
+	newFps += 1
+
+	// }
 	// renderArea.update(ctx,canvas.width,canvas.height)
 
 

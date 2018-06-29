@@ -1,4 +1,4 @@
-package main
+package tinybiome
 
 import (
 	"encoding/json"
@@ -9,6 +9,25 @@ import (
 	"net/http"
 	"sync"
 )
+
+func ServeStaticFiles() {
+	log.Println("serving files")
+	w := http.NewServeMux()
+	fs := http.FileServer(http.Dir("./ui"))
+	w.Handle("/", fs)
+	if err := http.ListenAndServe("0.0.0.0:8000", w); err != nil {
+		log.Println("err serving files: ", err.Error())
+	}
+}
+
+func ListenForNodes() {
+	log.Println("serving nodes")
+	m := http.NewServeMux()
+	m.Handle("/", websocket.Handler(newConn))
+	if err := http.ListenAndServe("0.0.0.0:4000", m); err != nil {
+		log.Println("err serving nodes:", err.Error())
+	}
+}
 
 var servers = make(map[*server]struct{})
 var clients = make(map[*client]struct{})
@@ -32,22 +51,6 @@ func checkHost(ip string) bool {
 		}
 	}
 	return true
-}
-
-func main() {
-
-	m := http.NewServeMux()
-	m.Handle("/", websocket.Handler(newConn))
-	go http.ListenAndServe("0.0.0.0:4000", m)
-
-	{
-		w := http.NewServeMux()
-		fs := http.FileServer(http.Dir("./ui"))
-		w.Handle("/", fs)
-
-		log.Println("ABOUT TO LISTEN FOR HTTP")
-		http.ListenAndServe("0.0.0.0:8000", w)
-	}
 }
 
 type server struct {

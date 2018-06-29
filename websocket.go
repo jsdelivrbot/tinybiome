@@ -1,13 +1,15 @@
-package client
+package tinybiome
 
 import (
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 
@@ -19,11 +21,7 @@ var defaultConf = []byte(`{
 		"port":3000,
 		"origins": [
 			"http://www.tinybio.me",
-			"http://localhost:8080",
-			"http://localhost",
-			"http://96.50.20.37:8080",
-			"http://96.50.20.37",
-			"http://192.168.0.17"],
+			"http://localhost"],
 		"rooms":[{
 			"name": "Long-term games!",
 			"width":2500, "height":2500,
@@ -38,6 +36,8 @@ var defaultConf = []byte(`{
 			"maxpellets": 10000}
 		]
 	}`)
+
+var master = flag.String("master", "tinybio.me:4000", "host and port of master")
 
 var ConfigInvalidJson = errors.New("Config file not valid JSON")
 
@@ -97,9 +97,9 @@ func (s *Server) String() string {
 
 func (s *Server) CommunicateWithMaster() {
 	for {
-		d, e := websocket.Dial("ws://master:4000", "", "http://server.go")
+		d, e := websocket.Dial("ws://"+*master, "", "http://server.go")
 		if e != nil {
-			fmt.Println("SLEEPING...")
+			log.Printf("SLEEPING DUE TO %s...", e.Error())
 			time.Sleep(1 * time.Second)
 			fmt.Println("RETRY")
 			continue
@@ -133,7 +133,12 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) Handler(res http.ResponseWriter, req *http.Request) {
-	o := req.Header.Get("Origin")
+	origin, err := url.Parse(req.Header.Get("Origin"))
+	if err != nil {
+		log.Println("rejecting because origin unparseable:", err.Error())
+		return
+	}
+	o := fmt.Sprintf("%s://%s", origin.Scheme, origin.Hostname())
 	if _, found := s.Origins[o]; !found {
 		log.Println("REJECTED BECAUSE ORIGIN NOT ALLOWED:", o)
 		return

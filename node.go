@@ -1,30 +1,29 @@
-package main
+package tinybiome
 
 import (
-	"github.com/ethicatech/tinybiome/client"
 	"log"
 	_ "net/http/pprof"
 	"os"
 	"runtime"
 )
 
-func main() {
+func StartNode() {
 	runtime.SetBlockProfileRate(1)
 
-	var conf *client.ServerConfig
+	var conf *ServerConfig
 	confFile, e := os.Open("conf.json")
 
 	if e == nil {
-		conf, e = client.NewServerConfigFromReader(confFile)
+		conf, e = NewServerConfigFromReader(confFile)
 		if e != nil {
 			log.Println(e.Error())
 			return
 		}
 	} else {
 		log.Println("Using default config, no conf.json present")
-		conf = client.NewServerConfigDefault()
+		conf = NewServerConfigDefault()
 	}
 
-	server := client.NewServer(conf)
+	server := NewServer(conf)
 	server.Start()
 }
