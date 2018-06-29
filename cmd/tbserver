@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-# chkconfig: 35 90 12
 # description: tb server
 #
 
 # Get function from functions library
-. /etc/init.d/functions
+. /lib/init/vars.sh
+. /lib/lsb/init-functions
 
 # Start the service tb
 start() {
