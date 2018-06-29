@@ -1,6 +1,4 @@
 #!/bin/bash
-cd $GIT_WORK_TREE
-pwd
 echo "fetching depedencies..."
 go get ./...
 echo "building binary..."
