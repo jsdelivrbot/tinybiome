@@ -7,9 +7,9 @@ go get ./...
 echo "building binary..."
 go build -o /root/tb cmd/tinybiome.go
 echo "adding service"
-cp cmd/tbserver /etc/init.d/tbserver
+cp cmd/tbserver.service /etc/systemd/system/
 echo "restarting tbserver service"
-service tbserver stop
-service tbserver start
+systemctl enable tbserver.service
+service restart tbserver.service
 echo "reloading nginx"
 service nginx reload
