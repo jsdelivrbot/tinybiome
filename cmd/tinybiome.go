@@ -21,6 +21,8 @@ func main() {
 		case "node":
 			go tinybiome.StartNode()
 		case "master":
+			go tinybiome.ListenForClients()
+			all.Add(1)
 			go tinybiome.ListenForNodes()
 		case "files":
 			go tinybiome.ServeStaticFiles()

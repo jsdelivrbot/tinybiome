@@ -20,8 +20,8 @@ func ServeStaticFiles() {
 	}
 }
 
-func ListenForNodes() {
-	log.Println("serving nodes")
+func ListenForClients() {
+	log.Println("serving clients")
 	m := http.NewServeMux()
 	m.Handle("/", websocket.Handler(newConn))
 
@@ -29,6 +29,16 @@ func ListenForNodes() {
 	keyFile := "/etc/letsencrypt/live/tinybio.me/privkey.pem"
 
 	if err := http.ListenAndServeTLS("0.0.0.0:4000", certFile, keyFile, m); err != nil {
+		log.Println("err serving clients:", err.Error())
+	}
+}
+
+func ListenForNodes() {
+	log.Println("serving nodes")
+	m := http.NewServeMux()
+	m.Handle("/", websocket.Handler(newConn))
+
+	if err := http.ListenAndServe("0.0.0.0:4001", m); err != nil {
 		log.Println("err serving nodes:", err.Error())
 	}
 }
