@@ -80,8 +80,8 @@ func NewBinaryProtocol(ws io.ReadWriter) Protocol {
 		WriteChan:     make(chan []byte, 1000),
 		OobWriteChan:  make(chan []byte, 100),
 		CloseChan:     make(chan error, 100),
-		Logging:       2,
-		DownLogging:   2,
+		Logging:       1,
+		DownLogging:   1,
 	}
 	a := Protocol(p)
 	p.WriteNewMessageMap()
