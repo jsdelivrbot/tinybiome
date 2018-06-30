@@ -13,7 +13,7 @@ files:
 nodes:
   - name: Default Server
     master: localhost:4001
-    address: 0.0.0.0:3000
+    address: tinybio.me:3000
     origins:
     - https://tinybio.me
     - https://www.tinybio.me
