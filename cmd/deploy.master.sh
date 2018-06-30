@@ -4,7 +4,7 @@ pwd
 
 export GOPATH="/root/go"
 go env
-go get -d -u ./...
+go get
 echo "building binary..."
 go build -o /root/tb cmd/tinybiome.go
 echo "adding service"
