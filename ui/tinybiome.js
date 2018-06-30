@@ -145,7 +145,7 @@ function sock(location) {
 		this.handleStopSpec.bind(this)]
 	this.messageMap = []
 	this.latency = 0;
-	this.ws = new WebSocket("ws://"+location)
+	this.ws = new WebSocket("wss://"+location)
 	this.lastPong = (new Date());
 
 	var self = this;
