@@ -3,7 +3,7 @@ echo "fetching depedencies in..."
 pwd
 
 go env
-go get ./...
+go get -d ./...
 echo "building binary..."
 go build -o /root/tb cmd/tinybiome.go
 echo "adding service"
