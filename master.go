@@ -70,10 +70,11 @@ func checkHost(ip string) bool {
 type server struct {
 	ip   string
 	port int
+	host string
 }
 
 func (s *server) addr() string {
-	return fmt.Sprintf("%s:%d", s.ip, s.port)
+	return fmt.Sprintf("%s:%d", s.host, s.port)
 }
 
 type client struct {
@@ -114,7 +115,7 @@ func newConn(ws *websocket.Conn) {
 		switch v["meth"].(string) {
 		case "addme":
 			if checkHost(ip) {
-				p = &server{ip: ip, port: int(v["port"].(float64))}
+				p = &server{ip: ip, host: v["host"].(string), port: int(v["port"].(float64))}
 				log.Println("NEW SERVER", p)
 				slock.Lock()
 				servers[p] = struct{}{}

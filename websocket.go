@@ -17,8 +17,9 @@ import (
 )
 
 var defaultConf = []byte(`{
-		"name":"Unnamed Server",
+		"name":"Default Server",
 		"port":3000,
+		"host": "tinybio.me",
 		"certfile": "/etc/letsencrypt/live/tinybio.me/fullchain.pem",
 		"keyfile": "/etc/letsencrypt/live/tinybio.me/privkey.pem",
 		"origins": [
@@ -44,12 +45,13 @@ var master = flag.String("master", "tinybio.me:4000", "host and port of master")
 var ConfigInvalidJson = errors.New("Config file not valid JSON")
 
 type ServerConfig struct {
-	Name     string `json:"name"`
-	Port     int    `json:"port"`
+	Name     string
+	Port     int
+	Host     string
 	CertFile string
 	KeyFile  string
-	Rooms    []*RoomConfig `json:"rooms"`
-	Origins  []string      `json:"origins"`
+	Rooms    []*RoomConfig
+	Origins  []string
 }
 
 func NewServerConfigDefault() *ServerConfig {
@@ -110,7 +112,7 @@ func (s *Server) CommunicateWithMaster() {
 		}
 		writer := json.NewEncoder(d)
 
-		writer.Encode(map[string]interface{}{"meth": "addme", "port": s.Config.Port})
+		writer.Encode(map[string]interface{}{"meth": "addme", "port": s.Config.Port, "host": s.Config.Host})
 		for {
 			time.Sleep(time.Second)
 			if e := writer.Encode(map[string]interface{}{"meth": "ping"}); e != nil {
