@@ -184,6 +184,7 @@ func (s *Server) Handler(res http.ResponseWriter, req *http.Request) {
 func (s *Server) Accept(ws *websocket.Conn) {
 	ws.PayloadType = websocket.BinaryFrame
 	if _, err := NewConnection(s, ws); err != nil {
+		log.Println("error accepting wss:", err.Error())
 		ws.SetDeadline(time.Now().Add(2 * time.Millisecond))
 		ws.Close()
 	}
