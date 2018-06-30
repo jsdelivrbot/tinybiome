@@ -2,12 +2,12 @@ certfile: "/etc/letsencrypt/live/tinybio.me/fullchain.pem"
 keyfile: "/etc/letsencrypt/live/tinybio.me/privkey.pem"
 master:
   clients:
-    address: localhost:4000
+    address: 0.0.0.0:4000
   management: 
     address: localhost:4001
     insecure: true
 files:
-  address: tinybio.me:8000
+  address: 0.0.0.0:8000
   insecure: true
   directory: ui
 nodes:
