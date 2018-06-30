@@ -101,7 +101,7 @@ func (s *Server) String() string {
 
 func (s *Server) CommunicateWithMaster() {
 	for {
-		d, e := websocket.Dial("wss://"+*master, "", "http://server.go")
+		d, e := websocket.Dial("ws://"+*master, "", "http://server.go")
 		if e != nil {
 			log.Printf("SLEEPING DUE TO %s...", e.Error())
 			time.Sleep(1 * time.Second)
