@@ -519,6 +519,7 @@ func (s *BinaryProtocol) Flush() error {
 	took := time.Since(t)
 	if len(b) > 5000 {
 		log.Println("LONG WRITE", len(b))
+		panic("want to restart")
 	}
 	if took > time.Millisecond {
 		log.Println("Write took", took)
