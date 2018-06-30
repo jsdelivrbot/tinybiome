@@ -1,0 +1,43 @@
+master:
+  clients:
+    address: localhost:4000
+    insecure: true
+  management: 
+    address: localhost:4001
+    insecure: true
+files:
+  address: localhost:8000
+  insecure: true
+  directory: ui
+nodes:
+  - name: Default Server
+    master: localhost:4001
+    address: localhost:3000
+    insecure: true
+    origins:
+    - http://localhost
+    rooms:
+    - name: Long-term games!
+      width: 1800
+      height: 1800
+      maxviruses: 29
+      maxbacteria: 7
+      maxsplit: 11
+      minsplitmass: 65
+      mergetime: 18
+      sizemultiplier: 0.64
+      speedmultiplier: 0.4
+      startmass: 40
+      maxpellets: 1800
+    - name: Quick and silly!
+      width: 1500
+      height: 900
+      maxviruses: 30
+      maxbacteria: 8
+      maxsplit: 11
+      minsplitmass: 65
+      mergetime: 18
+      sizemultiplier: 0.64
+      speedmultiplier: 0.45
+      startmass: 80
+      maxpellets: 5000

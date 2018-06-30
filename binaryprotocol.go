@@ -25,7 +25,7 @@ type ProtocolDown interface {
 	WriteDestroyPlayer(*Player)
 	WriteNamePlayer(*Player)
 	WriteOwns(*Player)
-	WriteRoom(*Room)
+	WriteRoom(*LiveRoom)
 	WriteMoveActor(*Actor)
 	WriteSetMassActor(*Actor)
 	WriteNewPellet(*Pellet)
@@ -80,8 +80,8 @@ func NewBinaryProtocol(ws io.ReadWriter) Protocol {
 		WriteChan:     make(chan []byte, 1000),
 		OobWriteChan:  make(chan []byte, 100),
 		CloseChan:     make(chan error, 100),
-		Logging:       1,
-		DownLogging:   1,
+		Logging:       0,
+		DownLogging:   0,
 	}
 	a := Protocol(p)
 	p.WriteNewMessageMap()
@@ -223,7 +223,7 @@ func WriteFloat32(w io.Writer, i float64) {
 }
 
 // sends updates
-func (s *BinaryProtocol) WriteRoom(r *Room) {
+func (s *BinaryProtocol) WriteRoom(r *LiveRoom) {
 	if s.Logging > 0 {
 		log.Println(s, "SENDING WriteRoom", r)
 	}
@@ -231,7 +231,7 @@ func (s *BinaryProtocol) WriteRoom(r *Room) {
 	WriteInt32(s.W, int64(r.ID))
 	WriteFloat32(s.W, r.Config.Width)
 	WriteFloat32(s.W, r.Config.Height)
-	WriteFloat32(s.W, r.Config.StartingMass)
+	WriteFloat32(s.W, r.Config.StartMass)
 	WriteInt32(s.W, int64(r.Config.MergeTime))
 	WriteFloat32(s.W, r.Config.SizeMultiplier)
 	WriteFloat32(s.W, r.Config.SpeedMultiplier)

@@ -50,33 +50,38 @@ func (p *Player) Write(pn ProtocolDown) {
 }
 
 func (p *Player) UpdateDirection(actor int32, d, s float32) {
-	if p.Room != nil {
-		r := p.Room
-		p.Room.ChangeLock.RLock()
-		a := r.getActor(int64(actor))
-		if a != nil {
-			op, isPA := a.Owner.(*PlayerActor)
-			if isPA {
-				if op.Player == p {
-					a.Direction = float64(d)
-					a.Speed = float64(s)
-					if a.Speed > 1 {
-						a.Speed = 1
-					}
-					if a.Speed < 0 {
-						a.Speed = 0
-					}
-				} else {
-					log.Println(a, "APPARENTLY NOT OWNED BY", p)
-				}
-			} else {
-				log.Println(a, "APPARENTLY NOT A PA")
-			}
-		} else {
-			log.Println("ACTOR", actor, "NOT FOUND?")
-		}
+	if p.Room == nil {
+		panic("player has no room")
+	}
+	r := p.Room
+	p.Room.ChangeLock.RLock()
+	defer p.Room.ChangeLock.RUnlock()
 
-		p.Room.ChangeLock.RUnlock()
+	a := r.getActor(int64(actor))
+	if a == nil {
+		fmt.Sprintf("ACTOR", actor, "NOT FOUND?")
+		return
+	}
+
+	op, isPA := a.Owner.(*PlayerActor)
+
+	if !isPA {
+		log.Println(a, "APPARENTLY NOT A PA")
+		return
+	}
+
+	if op.Player != p {
+		log.Println(a, "APPARENTLY NOT OWNED BY", p)
+		return
+	}
+
+	a.Direction = float64(d)
+	a.Speed = float64(s)
+	if a.Speed > 1 {
+		a.Speed = 1
+	}
+	if a.Speed < 0 {
+		a.Speed = 0
 	}
 }
 
@@ -98,6 +103,7 @@ func (a PlayerActorList) Less(i, j int) bool {
 
 func (p *Player) Split() {
 	p.Room.ChangeLock.Lock()
+	defer p.Room.ChangeLock.Unlock()
 	n := make([]Ticker, len(p.Owns[:]))
 	copy(n, p.Owns[:])
 	sorted := PlayerActorList(n)
@@ -107,16 +113,15 @@ func (p *Player) Split() {
 			a.(*PlayerActor).Split()
 		}
 	}
-	p.Room.ChangeLock.Unlock()
 }
 func (p *Player) Spit() {
 	p.Room.ChangeLock.Lock()
+	defer p.Room.ChangeLock.Unlock()
 	for _, a := range p.Owns {
 		if a != nil {
 			a.(*PlayerActor).Spit()
 		}
 	}
-	p.Room.ChangeLock.Unlock()
 }
 
 func (p *Player) Remove() {

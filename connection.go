@@ -12,14 +12,14 @@ type Connection struct {
 	Server   *Server
 	Protocol Protocol
 	Player   *Player
-	Room     *Room
+	Room     *LiveRoom
 }
 
 func NewConnection(s *Server, rwc io.ReadWriteCloser) (*Connection, error) {
 	c := &Connection{s, NewBinaryProtocol(rwc), nil, nil}
 	go c.SendUpdates()
 	log.Println("SYNCING ROOMS")
-	for _, room := range s.Rooms {
+	for _, room := range s.LiveRooms {
 		c.Protocol.WriteRoom(room)
 	}
 	e := c.ReadForever()
@@ -114,7 +114,7 @@ func (c *Connection) Ping() {
 	c.Protocol.WritePong()
 	c.Protocol.Save()
 
-	for _, room := range c.Server.Rooms {
+	for _, room := range c.Server.LiveRooms {
 		c.Protocol.WriteRoom(room)
 	}
 	c.Protocol.Save()
@@ -130,7 +130,7 @@ func (c *Connection) Spectate(room int) {
 		return
 	}
 
-	c.Room = c.Server.Rooms[room]
+	c.Room = c.Server.LiveRooms[room]
 	log.Println(c, "JOINING", c.Room)
 	c.Sync()
 }
@@ -164,9 +164,9 @@ func (c *Connection) CreatePlayer(name string) {
 	if c.Player == nil {
 		r := c.Room
 		r.ChangeLock.Lock()
-		c.Player = NewPlayer(r, name)
+		c.Player = NewPlayer(r.Room, name)
 		c.Protocol.WriteOwns(c.Player)
-		pa := c.Player.NewPlayerActor(rand.Float64()*r.Config.Width, rand.Float64()*r.Config.Height, r.Config.StartingMass)
+		pa := c.Player.NewPlayerActor(rand.Float64()*r.Config.Width, rand.Float64()*r.Config.Height, r.Config.StartMass)
 		c.Protocol.Save()
 		r.ChangeLock.Unlock()
 		log.Println(c, "JOINED AS", pa)

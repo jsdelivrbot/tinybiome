@@ -12,6 +12,8 @@ import (
 const TickLen = 25
 const TileSize = 100
 
+const DebugRoom = false
+
 type Ticker interface {
 	Tick(time.Duration)
 	Write(ProtocolDown)
@@ -27,28 +29,44 @@ func NewTile() *Tile {
 	return &Tile{Pellets: make([]*Pellet, 0)}
 }
 
-type RoomConfig struct {
-	Name            string  `json:"name"`
-	Width           float64 `json:"width"`
-	Height          float64 `json:"height"`
-	MaxBacteria     int     `json:"maxbacteria"`
-	MaxViruses      int     `json:"maxviruses"`
-	MaxSplit        int     `json:"maxsplit"`
-	MaxPellets      int     `json:"maxpellets"`
-	MergeTime       float64 `json:"mergetime"`
-	SizeMultiplier  float64 `json:"sizemultiplier"`
-	SpeedMultiplier float64 `json:"speedmultiplier"`
-	StartingMass    float64 `json:"startmass"`
-	MinSplitMass    float64 `json:"minsplitmass"`
+type LiveRoom struct {
+	*Room
+
+	Config RoomConfig
+	ID     int
 }
 
-func (c *RoomConfig) String() string {
-	return fmt.Sprintf("%fx%f, %dV, %dB", c.Width, c.Height, c.MaxViruses, c.MaxBacteria)
+func NewLiveRoom(c RoomConfig) *LiveRoom {
+	return &LiveRoom{Config: c}
+}
+
+func (rc *LiveRoom) Start() error {
+	newRoom := &Room{Config: rc.Config, ID: rc.ID}
+	newRoom.Actors = make([]*Actor, 256*256)
+	newRoom.Connections = make([]*Connection, 256*256)
+	newRoom.Players = make([]*Player, 256*256)
+	newRoom.Tickers = make([]Ticker, 256*256)
+	newRoom.Pellets = make([]*Pellet, newRoom.Config.MaxPellets)
+	newRoom.Ticker = time.NewTicker(time.Millisecond * TickLen)
+	defer newRoom.Ticker.Stop()
+
+	newRoom.CreateTiles()
+
+	rc.Room = newRoom
+
+	lastTick := time.Now()
+	for range newRoom.Ticker.C {
+		now := time.Now()
+		newRoom.run(now.Sub(lastTick))
+		lastTick = now
+	}
+	return nil
 }
 
 type Room struct {
-	ID          int
-	Config      *RoomConfig
+	Config RoomConfig
+	ID     int
+
 	Actors      []*Actor
 	Connections []*Connection
 	Players     []*Player
@@ -66,25 +84,10 @@ type Room struct {
 	ChangeLock sync.RWMutex
 }
 
-func NewRoom(c *RoomConfig) *Room {
-	r := &Room{
-		Actors:      make([]*Actor, 256*256),
-		Connections: make([]*Connection, 256*256),
-		Players:     make([]*Player, 256*256),
-		Tickers:     make([]Ticker, 256*256),
-		Pellets:     make([]*Pellet, c.MaxPellets),
-		Ticker:      time.NewTicker(time.Millisecond * TickLen),
-		Config:      c,
-	}
-	r.CreateTiles()
-	log.Println(r)
-
-	return r
-}
-
 func (r *Room) run(d time.Duration) {
 	t := time.Now()
 	r.ChangeLock.Lock()
+	defer r.ChangeLock.Unlock()
 	r.createThings(d)
 	r.checkCollisions()
 	r.doTicks(d)
@@ -94,10 +97,11 @@ func (r *Room) run(d time.Duration) {
 			conn.Protocol.Save()
 		}
 	}
-	r.ChangeLock.Unlock()
 	took := time.Since(t)
 	if took > time.Millisecond*10 {
-		log.Println("TICK TOOK", took)
+		if DebugRoom {
+			log.Println("TICK TOOK", took)
+		}
 	}
 }
 func (r *Room) checkCollisions() {
@@ -110,7 +114,9 @@ func (r *Room) checkCollisions() {
 	}
 	took := time.Since(t)
 	if took > time.Millisecond*1 {
-		log.Println("CHECKCOLS TOOK", took, "FOR", r.HighestID)
+		if DebugRoom {
+			log.Println("CHECKCOLS TOOK", took, "FOR", r.HighestID)
+		}
 	}
 }
 func (r *Room) createThings(d time.Duration) {
@@ -144,7 +150,9 @@ func (r *Room) doTicks(d time.Duration) {
 	}
 	took := time.Since(t)
 	if took > time.Millisecond*1 {
-		log.Println("DOTICK TOOK", took)
+		if DebugRoom {
+			log.Println("DOTICK TOOK", took)
+		}
 	}
 }
 
@@ -187,15 +195,6 @@ func (r *Room) CreateTiles() {
 			r.PelletTiles[i][j] = NewTile()
 		}
 	}
-
-	go func() {
-		lastTick := time.Now()
-		for range r.Ticker.C {
-			now := time.Now()
-			r.run(now.Sub(lastTick))
-			lastTick = now
-		}
-	}()
 }
 
 func (r *Room) getId(a *Actor) int64 {
@@ -209,7 +208,9 @@ func (r *Room) getId(a *Actor) int64 {
 			return id
 		}
 	}
-	log.Println("OUT OF ACTOR IDS?")
+	if DebugRoom {
+		log.Println("OUT OF ACTOR IDS?")
+	}
 	return -1
 }
 
@@ -221,7 +222,9 @@ func (r *Room) getPlayerId(p *Player) int64 {
 			return id
 		}
 	}
-	log.Println("OUT OF PLAYER IDS?")
+	if DebugRoom {
+		log.Println("OUT OF PLAYER IDS?")
+	}
 	return -1
 }
 
@@ -238,7 +241,9 @@ func (r *Room) getActor(id int64) *Actor {
 func (r *Room) MergeTimeFromMass(mass float64) time.Duration {
 	s := r.Config.MergeTime * (1 + mass/2000)
 	d := time.Duration(s*1000) * time.Millisecond
-	log.Println("MERGE TIME FOR", mass, "=", s, "SECONDS =", d)
+	if DebugRoom {
+		log.Println("MERGE TIME FOR", mass, "=", s, "SECONDS =", d)
+	}
 
 	return d
 }
@@ -248,7 +253,9 @@ func (r *Room) NewActor(x, y, mass float64) *Actor {
 	actor.Y = y
 	actor.Mass = mass
 	actor.RecalcRadius()
-	log.Println("NEW ACTOR", actor)
+	if DebugRoom {
+		log.Println("NEW ACTOR", actor)
+	}
 	return actor
 }
 func (r *Room) AddTicker(t Ticker) {

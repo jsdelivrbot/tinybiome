@@ -5,7 +5,7 @@ After=network.target
 
 [Service]
 WorkingDirectory = /root/go/src/github.com/ethicatech/tinybiome
-ExecStart=/root/tb -master localhost:4001 node master files
+ExecStart=/root/tb -conf prod.yml
 Type=simple
 Restart=always
 

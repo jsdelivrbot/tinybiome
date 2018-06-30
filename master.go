@@ -6,42 +6,8 @@ import (
 	"golang.org/x/net/websocket"
 	"log"
 	"net"
-	"net/http"
 	"sync"
 )
-
-func ServeStaticFiles() {
-	log.Println("serving files")
-	w := http.NewServeMux()
-	fs := http.FileServer(http.Dir("./ui"))
-	w.Handle("/", fs)
-	if err := http.ListenAndServe("0.0.0.0:8000", w); err != nil {
-		log.Println("err serving files: ", err.Error())
-	}
-}
-
-func ListenForClients() {
-	log.Println("serving clients")
-	m := http.NewServeMux()
-	m.Handle("/", websocket.Handler(newConn))
-
-	certFile := "/etc/letsencrypt/live/tinybio.me/fullchain.pem"
-	keyFile := "/etc/letsencrypt/live/tinybio.me/privkey.pem"
-
-	if err := http.ListenAndServeTLS("0.0.0.0:4000", certFile, keyFile, m); err != nil {
-		log.Println("err serving clients:", err.Error())
-	}
-}
-
-func ListenForNodes() {
-	log.Println("serving nodes")
-	m := http.NewServeMux()
-	m.Handle("/", websocket.Handler(newConn))
-
-	if err := http.ListenAndServe("0.0.0.0:4001", m); err != nil {
-		log.Println("err serving nodes:", err.Error())
-	}
-}
 
 var servers = make(map[*server]struct{})
 var clients = make(map[*client]struct{})
@@ -68,13 +34,18 @@ func checkHost(ip string) bool {
 }
 
 type server struct {
-	ip   string
-	port int
-	host string
+	ip       string
+	port     int
+	host     string
+	insecure bool
 }
 
 func (s *server) addr() string {
-	return fmt.Sprintf("%s:%d", s.host, s.port)
+	scheme := "wss:"
+	if s.insecure {
+		scheme = "ws:"
+	}
+	return fmt.Sprintf("%s//%s:%d", scheme, s.host, s.port)
 }
 
 type client struct {
@@ -115,7 +86,12 @@ func newConn(ws *websocket.Conn) {
 		switch v["meth"].(string) {
 		case "addme":
 			if checkHost(ip) {
-				p = &server{ip: ip, host: v["host"].(string), port: int(v["port"].(float64))}
+				p = &server{
+					ip:       ip,
+					host:     v["host"].(string),
+					port:     int(v["port"].(float64)),
+					insecure: v["insecure"].(bool),
+				}
 				log.Println("NEW SERVER", p)
 				slock.Lock()
 				servers[p] = struct{}{}

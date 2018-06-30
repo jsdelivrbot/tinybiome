@@ -4,33 +4,28 @@ import (
 	"flag"
 	"github.com/ethicatech/tinybiome"
 	"log"
-	"strings"
-	"sync"
+	"os"
 )
+
+var confFile = flag.String("conf", "default.yml", "configuration yaml file")
 
 func main() {
 	defer log.Println("exiting")
 	flag.Parse()
 
-	var all sync.WaitGroup
-	for _, v := range flag.Args() {
-		parts := strings.Split(v, ",")
-		log.Println("running service", v)
-		all.Add(1)
-		switch parts[0] {
-		case "node":
-			go tinybiome.StartNode()
-		case "master":
-			go tinybiome.ListenForClients()
-			all.Add(1)
-			go tinybiome.ListenForNodes()
-		case "files":
-			go tinybiome.ServeStaticFiles()
-		default:
-			log.Println("unknown command", v)
-			return
-		}
+	log.Println("loading config at", *confFile)
+	config, err := tinybiome.ConfigFromFile(*confFile)
+	if err != nil {
+		log.Println("couldn't load config file:", err.Error())
+		os.Exit(1)
+		return
+	}
+	if err := config.RunAndWait(); err != nil {
+		log.Println("quitting from err:", err.Error())
+		os.Exit(2)
+		return
 	}
 
-	all.Wait()
+	log.Println("quitting happily")
+	return
 }
