@@ -12,7 +12,7 @@ files:
   directory: ui
 nodes:
   - name: Default Server
-    master: tinybio.me:4001
+    master: localhost:4001
     address: tinybio.me:3000
     origins:
     - https://tinybio.me
