@@ -466,6 +466,9 @@ func (s *BinaryProtocol) Save() {
 
 	if len(s.WriteChan) > 10 {
 		log.Println(s, "HIGH WRITECHAN", len(s.WriteChan))
+		if len(s.WriteChan) > 20 {
+			panic("restart")
+		}
 	}
 	if len(s.WriteChan) > 50 {
 		s.Lock.Unlock()
@@ -519,7 +522,6 @@ func (s *BinaryProtocol) Flush() error {
 	took := time.Since(t)
 	if len(b) > 5000 {
 		log.Println("LONG WRITE", len(b))
-		panic("want to restart")
 	}
 	if took > time.Millisecond {
 		log.Println("Write took", took)
