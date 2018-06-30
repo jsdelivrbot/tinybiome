@@ -24,6 +24,7 @@ var defaultConf = []byte(`{
 		"keyfile": "/etc/letsencrypt/live/tinybio.me/privkey.pem",
 		"origins": [
 			"https://tinybio.me",
+			"https://www.tinybio.me",
 			"http://localhost"],
 		"rooms":[{
 			"name": "Long-term games!",
