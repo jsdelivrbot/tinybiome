@@ -2,6 +2,7 @@
 echo "fetching depedencies in..."
 pwd
 
+export GOPATH=`pwd`
 go env
 go get -d ./...
 echo "building binary..."
