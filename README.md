@@ -1,15 +1,13 @@
 # tinybiome
 Cell eat cell world out there!
 
-To run the central server:
+To run, simply:
 
-> go build master/tbmaster.go  
-> sudo ./tbmaster
+> go run cmd/tinybiome.go
 
-To run the nodes:
+Then point your browser at localhost:8000 to start playing.
 
-> go run node/tbnode.go
+# configuration
 
-Optionally, provide --port N
-
-Then connect via http to the master to start playing.
+TinyBiome uses a YAML configuration. The "default.yml" will be used by default.
+You can use a different YAML file by using the command-line `-conf other.yml`.
