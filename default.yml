@@ -1,18 +1,18 @@
 master:
   clients:
-    address: localhost:4000
+    address: 0.0.0.0:4000
     insecure: true
   management: 
     address: localhost:4001
     insecure: true
 files:
-  address: localhost:8000
+  address: 0.0.0.0:8000
   insecure: true
   directory: ui
 nodes:
   - name: Default Server
     master: localhost:4001
-    address: localhost:3000
+    address: 0.0.0.0:3000
     insecure: true
     origins:
     - http://localhost
@@ -43,7 +43,7 @@ nodes:
       maxpellets: 200
   - name: Experimental Server
     master: localhost:4001
-    address: localhost:3001
+    address: 0.0.0.0:3001
     insecure: true
     origins:
     - http://localhost

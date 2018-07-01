@@ -117,21 +117,32 @@ func (s *Server) RunHTTP() error {
 	return nil
 }
 
-func (s *Server) Handler(res http.ResponseWriter, req *http.Request) {
+func (s *Server) allowed(req *http.Request) bool {
+	if checkHost(req.RemoteAddr) {
+		return true
+	}
 	origin, err := url.Parse(req.Header.Get("Origin"))
 	if err != nil {
 		log.Println("rejecting because origin unparseable:", err.Error())
-		return
+		return false
 	}
 	o := fmt.Sprintf("%s://%s", origin.Scheme, origin.Hostname())
 	if _, found := s.Origins[o]; !found {
 		log.Println("REJECTED BECAUSE ORIGIN NOT ALLOWED:", o)
+		return false
+	}
+
+	return true
+}
+
+func (s *Server) Handler(res http.ResponseWriter, req *http.Request) {
+	if !s.allowed(req) {
+		res.WriteHeader(400)
 		return
 	}
 
 	a := req.RemoteAddr
 	ip, _, _ := net.SplitHostPort(a)
-
 	s.Lock.Lock()
 	if n, found := s.IPS[ip]; found {
 		if n >= 8 {

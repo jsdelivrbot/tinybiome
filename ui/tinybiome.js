@@ -622,8 +622,6 @@ function graphicsChanged() {
 
 window.onresize = graphicsChanged;
 
-
-
 var camera = {x:0,y:0,width:canvas.width,height:canvas.height,xscale:1,yscale:1};
 camera.bbox = function() {
 	return [camera.x,camera.y,camera.x+camera.width,camera.y+camera.height]
@@ -634,6 +632,13 @@ var mousey = canvas.height/2;
 canvas.onmousemove = function(e) {
 	mousex = e.offsetX/canvas.cwidth*canvas.width;
 	mousey = e.offsetY/canvas.cheight*canvas.height;
+}
+
+canvas.ontouchmove = function(e) {
+	e.preventDefault();
+	var touch = event.originalEvent.touches[0];
+	mousex = touch.offsetX/canvas.cwidth*canvas.width;
+	mousey = touch.offsetY/canvas.cheight*canvas.height;
 }
 
 var canSplit = true;
