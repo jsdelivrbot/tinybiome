@@ -6,7 +6,9 @@ import (
 	"gopkg.in/yaml.v2"
 	"log"
 	"net/http"
+	"net/http/pprof"
 	"os"
+	"runtime"
 	"time"
 )
 
@@ -110,6 +112,15 @@ func (fc FilesConfig) Run(c Config) error {
 	w.Handle("/", fs)
 
 	if fc.Insecure {
+		runtime.SetCPUProfileRate(1000)
+		runtime.SetBlockProfileRate(10)
+		runtime.SetMutexProfileFraction(10)
+
+		w.Handle("/block", pprof.Handler("block"))
+		w.Handle("/profile", pprof.Handler("profile"))
+		w.Handle("/heap", pprof.Handler("heap"))
+		w.Handle("/mutex", pprof.Handler("mutex"))
+
 		if err := http.ListenAndServe(fc.Address, w); err != nil {
 			log.Println("err serving files: ", err.Error())
 			return err

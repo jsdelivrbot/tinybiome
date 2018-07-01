@@ -4,6 +4,7 @@ import (
 	"flag"
 	"github.com/ethicatech/tinybiome"
 	"log"
+	_ "net/http/pprof"
 	"os"
 )
 
