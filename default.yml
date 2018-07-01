@@ -72,3 +72,15 @@ nodes:
       speedmultiplier: 0.45
       startmass: 80
       maxpellets: 2000
+    - name: Oh god why
+      width: 1800
+      height: 18000
+      maxviruses: 60
+      maxbacteria: 25
+      maxsplit: 50
+      minsplitmass: 100
+      mergetime: 1
+      sizemultiplier: 0.64
+      speedmultiplier: 0.4
+      startmass: 10
+      maxpellets: 1800

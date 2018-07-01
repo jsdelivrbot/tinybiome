@@ -59,7 +59,7 @@ func (p *Player) UpdateDirection(actor int32, d, s float32) {
 
 	a := r.getActor(int64(actor))
 	if a == nil {
-		fmt.Sprintf("ACTOR", actor, "NOT FOUND?")
+		fmt.Sprintf("ACTOR %#v not found?", actor)
 		return
 	}
 
