@@ -30,6 +30,37 @@ nodes:
       speedmultiplier: 0.4
       startmass: 40
       maxpellets: 1800
+    - name: The Desert!
+      width: 2000
+      height: 2000
+      maxviruses: 8
+      maxbacteria: 2
+      maxsplit: 5
+      minsplitmass: 65
+      mergetime: 30
+      sizemultiplier: 0.64
+      speedmultiplier: 0.4
+      startmass: 15
+      maxpellets: 200
+  - name: Experimental Server
+    master: localhost:4001
+    address: tinybio.me:3001
+    origins:
+    - https://tinybio.me
+    - https://www.tinybio.me
+    rooms:
+    - name: Split Fest!
+      width: 1800
+      height: 600
+      maxviruses: 9
+      maxbacteria: 9
+      maxsplit: 22
+      minsplitmass: 55
+      mergetime: 3
+      sizemultiplier: 0.69
+      speedmultiplier: 0.55
+      startmass: 80
+      maxpellets: 500
     - name: Quick and silly!
       width: 1500
       height: 900
@@ -41,4 +72,4 @@ nodes:
       sizemultiplier: 0.64
       speedmultiplier: 0.45
       startmass: 80
-      maxpellets: 5000
+      maxpellets: 2000
