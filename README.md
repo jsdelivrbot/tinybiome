@@ -7,6 +7,10 @@ To run, simply:
 
 Then point your browser at localhost:8000 to start playing.
 
+<p align="center">
+    <img src="https://cdn.rawgit.com/ethicatech/tinybiome/62f0389a/cmd/example.svg">
+</p>
+
 # configuration
 
 TinyBiome uses a YAML configuration. The "default.yml" will be used by default.
