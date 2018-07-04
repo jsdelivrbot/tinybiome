@@ -8,7 +8,7 @@ To run, simply:
 Then point your browser at localhost:8000 to start playing.
 
 <p align="center">
-    <img src="https://cdn.rawgit.com/ethicatech/tinybiome/62f0389a/cmd/example.svg">
+    <img src="https://cdn.rawgit.com/ethicatech/tinybiome/b7f243b3/cmd/example.svg">
 </p>
 
 # configuration
